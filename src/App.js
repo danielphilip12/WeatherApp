@@ -1,4 +1,3 @@
-import logo from './logo.svg';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
@@ -8,6 +7,10 @@ function App() {
   const [weather, setWeather] = useState('');
 
   const getWeather = async () => {
+    if (location === '') {
+      alert('Please enter a location');
+      return;
+    }
     const response = await axios.get(`https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}`);
     console.log(response);
     setWeather(response.data);
