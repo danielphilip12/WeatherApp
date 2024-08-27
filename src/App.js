@@ -1,25 +1,33 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import LocationInput from './components/LocationInput';
+import WeatherCard from './components/WeatherCard';
 
 function App() {
   const apiKey = process.env.REACT_APP_WEATHER_API_KEY;
-  const [location, setLocation] = useState('');
-  const [weather, setWeather] = useState('');
+  const [weather, setWeather] = useState(null);
 
-  const getWeather = async () => {
+  const handleSearch = async (location) => {
     if (location === '') {
       alert('Please enter a location');
       return;
     }
-    const response = await axios.get(`https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}`);
-    console.log(response);
-    setWeather(response.data);
+    try {
+      const response = await axios.get(`https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${location}`);
+      setWeather(response.data);
+    } catch (error) {
+      console.error('Error fetching weather data:', error);
+      alert('Error fetching weather data. Please try again.');
+    }
   }
 
   const getWeatherByGeo = async (lat, lon) => {
-    const response = await axios.get(`https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lat},${lon}`);
-    console.log(response);
-    setWeather(response.data);
+    try {
+      const response = await axios.get(`https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${lat},${lon}`);
+      setWeather(response.data);
+    } catch (error) {
+      console.error('Error fetching weather data:', error);
+    }
   }
 
   useEffect(() => {
@@ -37,16 +45,12 @@ function App() {
 
   return (
     <div className="container">
-      <h1>Weather App</h1>
-      <input className="input mb-3" type="text" value={location} onChange={(e) => setLocation(e.target.value)} />
-      <button className="button is-primary" onClick={getWeather}>Get Weather</button>
-      {weather && (
-        <div>
-          <p>Location: {weather.location.name}, {weather.location.region}</p>
-          <p>Temperature: {weather.current.temp_f}F</p>
-          <p>Condition: {weather.current.condition.text}</p>
-        </div>
-      )}
+      <h1 className="title has-text-centered mt-4">Weather App</h1>
+      <LocationInput onSearch={handleSearch} />
+      {weather && <WeatherCard weather={weather} />}
+      <p className="has-text-centered mt-4">
+        Powered by <a href="https://www.weatherapi.com/" title="Free Weather API">WeatherAPI.com</a>
+      </p>
     </div>
   );
 }
